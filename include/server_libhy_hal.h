@@ -24,12 +24,12 @@
 extern "C" {
 #endif
 
-#include "server_common.h"
+#include "server_com.h"
 
-void *server_libhy_hal_create(ServerCommonConfig_t *server_config);
+void *server_libhy_hal_create(ServerConfig_t *server_config);
 void server_libhy_hal_destroy(void *handle);
 
-int server_libhy_hal_write(void *handle, void *data, uint32_t len);
+int server_libhy_hal_write(void *handle, void *data, size_t len);
 
 #ifdef __cplusplus
 }

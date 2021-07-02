@@ -21,7 +21,7 @@
 
 #include "hy_server_protocol.h"
 
-#include "protocol_common.h"
+#include "protocol_com.h"
 #include "protocol_json.h"
 #include "protocol_struct.h"
 
@@ -59,14 +59,14 @@ void HyServerProtocolDestroy(void *handle)
     handle_cb[context->type](context);
 }
 
-int HyServerProtocolWrite(void *handle, void *data, uint32_t len)
+int HyServerProtocolWrite(void *handle, void *data, size_t len)
 {
     if (!handle || !data) {
         LOGE("the param is error \n");
         return -1;
     }
 
-    typedef int (*handle_cb_t)(ProtocolContext_t *context, void *data, uint32_t len);
+    typedef int (*handle_cb_t)(ProtocolContext_t *context, void *data, size_t len);
     handle_cb_t handle_cb[HY_SERVER_PROTOCOL_TYPE_MAX] = {
         protocol_json_write,
     };

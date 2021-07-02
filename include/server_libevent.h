@@ -24,13 +24,13 @@
 extern "C" {
 #endif
 
-#include "server_common.h"
-#include "protocol_common.h"
+#include "server_com.h"
+#include "protocol_com.h"
 
-void *server_libevent_create(ServerCommonConfig_t *server_config);
+void *server_libevent_create(ServerConfig_t *server_config);
 void server_libevent_destroy(ProtocolContext_t *context);
 
-int server_libevent_write(ProtocolContext_t *context, void *data, uint32_t len);
+int server_libevent_write(ProtocolContext_t *context, void *data, size_t len);
 
 #ifdef __cplusplus
 }

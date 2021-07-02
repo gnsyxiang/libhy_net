@@ -22,11 +22,20 @@
 #include <string.h>
 
 #include "protocol_json.h"
-#include "server_common.h"
+#include "server_com.h"
 #include "server_libevent.h"
 
 #include "hy_utils/hy_log.h"
 #define ALONE_DEBUG 1
+
+static void _handle_json_cb(void *data, size_t len, void *args)
+{
+    ProtocolContext_t *context = args;
+
+    if (context->cb) {
+        context->cb(1, data, len, context->args);
+    }
+}
 
 void *protocol_json_create(HyServerProtocolConfig_t *server_protocol_config)
 {
@@ -40,12 +49,15 @@ void *protocol_json_create(HyServerProtocolConfig_t *server_protocol_config)
         }
         memset(context, '\0', sizeof(*context));
 
-        context->type = server_protocol_config->type;
+        context->type   = server_protocol_config->type;
+        context->cb     = server_protocol_config->cb;
+        context->args   = server_protocol_config->args;
 
-        ServerCommonConfig_t server_config;
+        ServerConfig_t server_config;
         server_config.ip    = server_protocol_config->ip;
         server_config.port  = server_protocol_config->port;
-        server_config.cb    = server_protocol_config->cb;
+        server_config.cb    = _handle_json_cb;
+        server_config.args  = context;
 
         context->handle = server_libevent_create(&server_config);
         if (!context->handle) {
@@ -76,7 +88,7 @@ void protocol_json_destroy(ProtocolContext_t *context)
     free(context);
 }
 
-int protocol_json_write(ProtocolContext_t *context, void *data, uint32_t len)
+int protocol_json_write(ProtocolContext_t *context, void *data, size_t len)
 {
     return server_libevent_write(context->handle, data, len);
 }

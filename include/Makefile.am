@@ -30,9 +30,9 @@ install_includedir          = $(includedir)/@project_name@
 # ---------------------
 _no_install_headers_com     += \
                                server_libevent.h \
-                               server_common.h \
+                               server_com.h \
                                protocol_json.h \
-                               protocol_common.h
+                               protocol_com.h
 
 _install_headers_com        += hy_server_protocol.h
 

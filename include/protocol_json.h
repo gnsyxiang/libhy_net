@@ -25,12 +25,12 @@ extern "C" {
 #endif
 
 #include "hy_server_protocol.h"
-#include "protocol_common.h"
+#include "protocol_com.h"
 
 void *protocol_json_create(HyServerProtocolConfig_t *server_protocol_config);
 void protocol_json_destroy(ProtocolContext_t *context);
 
-int protocol_json_write(ProtocolContext_t *context, void *data, uint32_t len);
+int protocol_json_write(ProtocolContext_t *context, void *data, size_t len);
 
 #ifdef __cplusplus
 }

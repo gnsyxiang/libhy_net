@@ -26,9 +26,9 @@
 #include "hy_utils/hy_log.h"
 #define ALONE_DEBUG 1
 
-static void _data_cb(int type, void *data, uint32_t len)
+static void _data_cb(int type, void *data, size_t len, void *args)
 {
-    LOGD("data: %s \n", data);
+    LOGD("len: %d, data: %s \n", len, data);
 }
 
 int main(int argc, char const* argv[])
@@ -40,6 +40,7 @@ int main(int argc, char const* argv[])
     server_protocol_config.ip   = "192.168.1.57";
     server_protocol_config.port = 9999;
     server_protocol_config.cb   = _data_cb;
+    server_protocol_config.args = NULL;
 
     void *handle = HyServerProtocolCreate(&server_protocol_config);
     if (!handle) {
@@ -49,6 +50,9 @@ int main(int argc, char const* argv[])
 
     while (1) {
         HyTimeDelayMs(1000);
+
+        #define _MESSAGE "haha"
+        HyServerProtocolWrite(handle, _MESSAGE, sizeof(_MESSAGE));
     }
 
     HyServerProtocolDestroy(handle);

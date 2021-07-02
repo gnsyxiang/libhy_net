@@ -34,7 +34,7 @@ typedef enum {
     HY_SERVER_PROTOCOL_TYPE_MAX,
 } HyServerProtocolType_t;
 
-typedef void (*HyServerProtocolCb_t)(int type, void *data, uint32_t len);
+typedef void (*HyServerProtocolCb_t)(int type, void *data, size_t len, void *args);
 
 typedef struct {
     HyServerProtocolType_t  type;
@@ -42,13 +42,14 @@ typedef struct {
     char        *ip;
     uint16_t    port;
 
-    HyServerProtocolCb_t cb;
+    HyServerProtocolCb_t    cb;
+    void                    *args;
 } HyServerProtocolConfig_t;
 
 void *HyServerProtocolCreate(HyServerProtocolConfig_t *server_protocol_config);
 void HyServerProtocolDestroy(void *handle);
 
-int HyServerProtocolWrite(void *handle, void *data, uint32_t len);
+int HyServerProtocolWrite(void *handle, void *data, size_t len);
 
 #ifdef __cplusplus
 }
