@@ -39,6 +39,8 @@ static void _handle_json_cb(void *data, size_t len, void *args)
 
 void *protocol_json_create(HyServerProtocolConfig_t *server_protocol_config)
 {
+    LOGT("%s:%d \n", __func__, __LINE__);
+
     ProtocolContext_t *context = NULL;
 
     do {
@@ -81,6 +83,8 @@ void *protocol_json_create(HyServerProtocolConfig_t *server_protocol_config)
 
 void protocol_json_destroy(ProtocolContext_t *context)
 {
+    LOGT("%s:%d \n", __func__, __LINE__);
+
     if (context->handle) {
         server_libevent_destroy(context->handle);
     }

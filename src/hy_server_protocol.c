@@ -30,6 +30,8 @@
 
 void *HyServerProtocolCreate(HyServerProtocolConfig_t *server_protocol_config)
 {
+    LOGT("%s:%d \n", __func__, __LINE__);
+
     if (!server_protocol_config) {
         LOGE("the param is NULL \n");
         return NULL;
@@ -45,6 +47,8 @@ void *HyServerProtocolCreate(HyServerProtocolConfig_t *server_protocol_config)
 
 void HyServerProtocolDestroy(void *handle)
 {
+    LOGT("%s:%d \n", __func__, __LINE__);
+
     if (!handle) {
         LOGE("the param is NULL \n");
         return ;

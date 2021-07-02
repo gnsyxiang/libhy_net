@@ -19,8 +19,9 @@
  */
 #include <stdio.h>
 #include <string.h>
-#include <pthread.h>
 #include <stdlib.h>
+#include <pthread.h>
+#include <semaphore.h>
 
 #include <event2/event.h>
 #include <event2/bufferevent.h>
@@ -38,6 +39,8 @@ typedef struct {
 
     ServerCb_t          cb;
     void                *args;
+
+    sem_t               exit_sem;
 } server_libevent_context_t;
 
 static void _socket_read_cb(struct bufferevent *bev, void *arg)
@@ -73,28 +76,18 @@ static void _socket_event_cb(struct bufferevent *bev, short events, void *arg)
 
 static void *_event_base_dispatch_loop(void *args)
 {
-    struct event_base *base = args;
+    server_libevent_context_t *context = args;
 
-    event_base_dispatch(base);
+    event_base_dispatch(context->base);
+
+    sem_post(&context->exit_sem);
 
     return NULL;
 }
 
-void *server_libevent_create(ServerConfig_t *server_config)
+static int _libevent_init(server_libevent_context_t *context, ServerConfig_t *server_config)
 {
-    server_libevent_context_t *context = NULL;
-
     do {
-        context = malloc(sizeof(*context));
-        if (!context) {
-            LOGE("malloc faild \n");
-            return NULL;
-        }
-        memset(context, '\0', sizeof(*context));
-
-        context->cb = server_config->cb;
-        context->args = server_config->args;
-
         context->base = event_base_new();
         if (!context->base) {
             LOGE("event_base_new faild \n");
@@ -125,8 +118,41 @@ void *server_libevent_create(ServerConfig_t *server_config)
         bufferevent_enable(context->bev, EV_READ | EV_PERSIST);
 
         if (0 != pthread_create(&context->id, NULL,
-                    _event_base_dispatch_loop, context->base)) {
+                    _event_base_dispatch_loop, context)) {
             LOGE("pthread_create faild \n");
+            break;
+        }
+
+        return 0;
+    } while(0);
+
+    return -1;
+}
+
+void *server_libevent_create(ServerConfig_t *server_config)
+{
+    LOGT("%s:%d \n", __func__, __LINE__);
+
+    server_libevent_context_t *context = NULL;
+
+    do {
+        context = malloc(sizeof(*context));
+        if (!context) {
+            LOGE("malloc faild \n");
+            break;
+        }
+        memset(context, '\0', sizeof(*context));
+
+        context->cb = server_config->cb;
+        context->args = server_config->args;
+
+        if (0 != sem_init(&context->exit_sem, 0, 0)) {
+            LOGE("sem_init faild \n");
+            break;
+        }
+
+        if (0 != _libevent_init(context, server_config)) {
+            LOGE("_libevent_init faild \n");
             break;
         }
 
@@ -150,13 +176,26 @@ void *server_libevent_create(ServerConfig_t *server_config)
     return NULL;
 }
 
-void server_libevent_destroy(ProtocolContext_t *context)
+void server_libevent_destroy(void *handle)
 {
+    LOGT("%s:%d \n", __func__, __LINE__);
 
-    // event_base_free(base);
+    server_libevent_context_t *context = handle;
+
+    if (context->base) {
+        event_base_loopexit(context->base, NULL);
+
+        sem_wait(&context->exit_sem);
+
+        sem_destroy(&context->exit_sem);
+
+        event_base_free(context->base);
+
+        free(context);
+    }
 }
 
-int server_libevent_write(ProtocolContext_t *context, void *data, size_t len)
+int server_libevent_write(void *handle, void *data, size_t len)
 {
     return 0;
 }
