@@ -41,13 +41,24 @@ _cppflags_com   += \
                    $(CPPFLAGS_COM) \
                    $(_include_com)
 
+
 _cflags_com     += $(CFLAGS_COM)
 
 _cxxflags_com   += $(CXXFLAGS_COM)
 
-_ldflags_com    += $(BIN_LDFLAGS_COM)
+_ldflags_com    += \
+                   $(BIN_LDFLAGS_COM) \
+                   $(top_builddir)/src/lib@project_name@.la
 
-_ldadd_com      += $(top_builddir)/src/lib@project_name@.la
+if COMPILE_LIBEVENT
+_cppflags_com   += $(EVENT_INCS)
+_ldflags_com    += $(EVENT_LIBS)
+endif
+
+if COMPILE_LIBHY_UTILS
+_cppflags_com   += $(HY_UTILS_INCS)
+_ldflags_com    += $(HY_UTILS_LIBS)
+endif
 
 bin_PROGRAMS                += hy_server_protocol
 hy_server_protocol_SOURCES  = $(_sources_com) main.c

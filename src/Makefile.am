@@ -36,7 +36,10 @@ _ldadd_com      =
 # ---------------------
 _include_com    += -I$(top_srcdir)/include
 
-_sources_com    += module_a.c
+_sources_com    += \
+                   server_libevent.c \
+                   protocol_json.c \
+                   hy_server_protocol.c
 
 _cppflags_com   += \
                    $(CPPFLAGS_COM) \
@@ -46,13 +49,15 @@ _cflags_com     += $(CFLAGS_COM)
 
 _cxxflags_com   += $(CXXFLAGS_COM)
 
-_ldflags_com    += -export-symbols-regex 'Hy*'
+_ldflags_com    += \
+                   -export-symbols-regex 'Hy*' \
+                   -version-info @current@:@revision@:@age@ \
+                   $(LIB_LDFLAGS_COM)
 
-_ldflags_com    += -version-info @current@:@revision@:@age@
-
-_ldflags_com    += $(LIB_LDFLAGS_COM)
-
-_ldadd_com      +=
+if COMPILE_LIBHY_UTILS
+_cppflags_com   += $(HY_UTILS_INCS)
+_ldflags_com    += $(HY_UTILS_LIBS)
+endif
 
 lib@project_name@_la_SOURCES    = $(_sources_com)
 lib@project_name@_la_CPPFLAGS   = $(_cppflags_com)

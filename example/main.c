@@ -19,13 +19,41 @@
  */
 #include <stdio.h>
 
-#include "module_a.h"
+#include "hy_server_protocol.h"
+
+#include "hy_hal/hy_time.h"
+
+#include "hy_utils/hy_log.h"
+#define ALONE_DEBUG 1
+
+static void _data_cb(int type, void *data, uint32_t len)
+{
+    LOGD("data: %s \n", data);
+}
 
 int main(int argc, char const* argv[])
 {
-    printf("hello world \n");
+    HyLogCreate(HY_LOG_LEVEL_ALL, 1024, "./res/config/log4cplus.rc");
 
-    HyModuleAInit();
+    HyServerProtocolConfig_t server_protocol_config;
+    server_protocol_config.type = HY_SERVER_PROTOCOL_TYPE_JSON;
+    server_protocol_config.ip   = "192.168.1.57";
+    server_protocol_config.port = 9999;
+    server_protocol_config.cb   = _data_cb;
+
+    void *handle = HyServerProtocolCreate(&server_protocol_config);
+    if (!handle) {
+        LOGE("HyServerProtocolCreate faild \n");
+        return -1;
+    }
+
+    while (1) {
+        HyTimeDelayMs(1000);
+    }
+
+    HyServerProtocolDestroy(handle);
+    HyLogDestroy();
 
     return 0;
 }
+

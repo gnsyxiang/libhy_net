@@ -25,6 +25,9 @@ CHECK_VERSION_INFO
 CHECK_DOXYGEN
 CHECK_JAVA
 
+CHECK_LIBHY_UTILS
+CHECK_LIBEVENT
+
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_AWK
@@ -39,17 +42,23 @@ AC_PROG_MKDIR_P
 # Checks for libraries.
 
 # Checks for header files.
+AC_CHECK_HEADERS([stdint.h stdlib.h string.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
+AC_TYPE_UINT16_T
+AC_TYPE_UINT32_T
 
 # Checks for library functions.
+AC_FUNC_MALLOC
+AC_CHECK_FUNCS([memset])
 
-AC_CONFIG_FILES([Makefile
+AC_CONFIG_FILES([3rd_lib/Makefile
+                 Makefile
                  $project_name.pc
                  docs/Makefile
                  example/Makefile
                  include/Makefile
                  res/Makefile
-                 3rd_lib/Makefile
+                 res/config/Makefile
                  src/Makefile])
 AC_OUTPUT

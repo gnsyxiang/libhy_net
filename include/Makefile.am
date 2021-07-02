@@ -21,19 +21,24 @@
 # ------------------
 # defining variables
 # ------------------
-NO_INSTALL_HEADERS_COM  =
-INSTALL_HEADERS_COM     =
-install_includedir      = $(includedir)/@project_name@
+_no_install_headers_com     =
+_install_headers_com        =
+install_includedir          = $(includedir)/@project_name@
 
 # ---------------------
 # add necessary content
 # ---------------------
-NO_INSTALL_HEADERS_COM  +=
+_no_install_headers_com     += \
+                               server_libevent.h \
+                               server_common.h \
+                               protocol_json.h \
+                               protocol_common.h
 
-INSTALL_HEADERS_COM     += module_a.h
+_install_headers_com        += hy_server_protocol.h
 
 # ------------------
 # make install files
 # ------------------
-noinst_HEADERS          = $(NO_INSTALL_HEADERS_COM)
-install_include_HEADERS = $(INSTALL_HEADERS_COM)
+noinst_HEADERS              = $(_no_install_headers_com)
+install_include_HEADERS     = $(_install_headers_com)
+
