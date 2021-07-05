@@ -23,7 +23,6 @@
 
 #include "protocol_com.h"
 #include "protocol_json.h"
-#include "protocol_struct.h"
 
 #include "hy_utils/hy_log.h"
 #define ALONE_DEBUG 1
