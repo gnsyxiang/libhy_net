@@ -25,6 +25,7 @@
 
 #include <event2/event.h>
 #include <event2/bufferevent.h>
+#include <event2/thread.h>
 
 #include "server_libevent.h"
 #include "server_com.h"
@@ -88,6 +89,12 @@ static void *_event_base_dispatch_loop(void *args)
 static int _libevent_init(server_libevent_context_t *context, ServerConfig_t *server_config)
 {
     do {
+#if EVTHREAD_USE_WINDOWS_THREADS_IMPLEMENTED
+        evthread_use_windows_threads();
+#endif
+#if EVTHREAD_USE_PTHREADS_IMPLEMENTED
+        evthread_use_pthreads();
+#endif
         context->base = event_base_new();
         if (!context->base) {
             LOGE("event_base_new faild \n");

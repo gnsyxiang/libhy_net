@@ -50,6 +50,11 @@ _ldflags_com    += \
                    $(BIN_LDFLAGS_COM) \
                    $(top_builddir)/src/lib@project_name@.la
 
+if COMPILE_LIBEVENT_PTHREAD
+_cppflags_com   += $(EVENT_PTHREAD_INCS)
+_ldflags_com    += $(EVENT_PTHREAD_LIBS)
+endif
+
 if COMPILE_LIBEVENT
 _cppflags_com   += $(EVENT_INCS)
 _ldflags_com    += $(EVENT_LIBS)
