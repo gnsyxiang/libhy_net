@@ -27,14 +27,24 @@ extern "C" {
 #include <stdio.h>
 #include <stdint.h>
 
-typedef void (*ServerCb_t)(void *data, size_t len, void *args);
+enum {
+    SERVER_STATE_DISCONNECT = (uint32_t)(0x1 << 0),
+    SERVER_STATE_CONNECTED  = (uint32_t)(0x1 << 1),
+
+    SERVER_STATE_REGISTER   = (uint32_t)(0x1 << 2),
+};
 
 typedef struct {
-    char        *ip;
-    uint16_t    port;
+    void (*state_cb)(int state, void *args);
+    void (*data_cb)(void *data, size_t len, void *args);
+    void *args;
+} ServerCb_t;
 
-    ServerCb_t  cb;
-    void        *args;
+typedef struct {
+    char            *ip;
+    uint16_t        port;
+
+    ServerCb_t      cb;
 } ServerConfig_t;
 
 #ifdef __cplusplus

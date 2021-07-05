@@ -51,6 +51,8 @@ void HyServerProtocolDestroy(void *handle);
 
 int HyServerProtocolWrite(void *handle, void *data, size_t len);
 
+int HyServerProtocolProcess(void *handle);
+
 #ifdef __cplusplus
 }
 #endif

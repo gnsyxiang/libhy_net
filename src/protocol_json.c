@@ -28,7 +28,12 @@
 #include "hy_utils/hy_log.h"
 #define ALONE_DEBUG 1
 
-static void _handle_json_cb(void *data, size_t len, void *args)
+int ProtocolJsonWrite(ProtocolContext_t *context, void *data, size_t len)
+{
+    return server_libevent_write(context->handle, data, len);
+}
+
+static void _handle_data_cb(void *data, size_t len, void *args)
 {
     ProtocolContext_t *context = args;
 
@@ -37,7 +42,18 @@ static void _handle_json_cb(void *data, size_t len, void *args)
     }
 }
 
-void *protocol_json_create(HyServerProtocolConfig_t *server_protocol_config)
+static void _handle_state_cb(int state, void *args)
+{
+    ProtocolContext_t *context = args;
+
+    LOGD("------------%d \n", state);
+
+    if (context) {
+        context->state = state;
+    }
+}
+
+void *ProtocolJsonCreate(HyServerProtocolConfig_t *server_protocol_config)
 {
     LOGT("%s:%d \n", __func__, __LINE__);
 
@@ -56,10 +72,11 @@ void *protocol_json_create(HyServerProtocolConfig_t *server_protocol_config)
         context->args   = server_protocol_config->args;
 
         ServerConfig_t server_config;
-        server_config.ip    = server_protocol_config->ip;
-        server_config.port  = server_protocol_config->port;
-        server_config.cb    = _handle_json_cb;
-        server_config.args  = context;
+        server_config.ip            = server_protocol_config->ip;
+        server_config.port          = server_protocol_config->port;
+        server_config.cb.state_cb   = _handle_state_cb;
+        server_config.cb.data_cb    = _handle_data_cb;
+        server_config.cb.args       = context;
 
         context->handle = server_libevent_create(&server_config);
         if (!context->handle) {
@@ -70,18 +87,12 @@ void *protocol_json_create(HyServerProtocolConfig_t *server_protocol_config)
         return context;
     } while (0);
 
-    if (context) {
-        if (context->handle) {
-            server_libevent_destroy(context->handle);
-        }
-
-        free(context);
-    }
+    ProtocolJsonDestroy(context);
 
     return NULL;
 }
 
-void protocol_json_destroy(ProtocolContext_t *context)
+void ProtocolJsonDestroy(ProtocolContext_t *context)
 {
     LOGT("%s:%d \n", __func__, __LINE__);
 
@@ -92,8 +103,14 @@ void protocol_json_destroy(ProtocolContext_t *context)
     free(context);
 }
 
-int protocol_json_write(ProtocolContext_t *context, void *data, size_t len)
+int ProtocolJsonProcess(ProtocolContext_t *context)
 {
-    return server_libevent_write(context->handle, data, len);
+    if (context->state & SERVER_STATE_CONNECTED) {
+        if (context->state & SERVER_STATE_REGISTER) {
+        } else {
+        }
+    }
+
+    return 0;
 }
 

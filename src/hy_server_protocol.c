@@ -36,9 +36,10 @@ void *HyServerProtocolCreate(HyServerProtocolConfig_t *server_protocol_config)
         return NULL;
     }
 
-    typedef void *(*handle_cb_t)(HyServerProtocolConfig_t *server_protocol_config);
+    typedef void *(*handle_cb_t)
+        (HyServerProtocolConfig_t *server_protocol_config);
     handle_cb_t handle_cb[HY_SERVER_PROTOCOL_TYPE_MAX] = {
-        protocol_json_create,
+        ProtocolJsonCreate,
     };
 
     return handle_cb[server_protocol_config->type](server_protocol_config);
@@ -55,7 +56,7 @@ void HyServerProtocolDestroy(void *handle)
 
     typedef void (*handle_cb_t)(ProtocolContext_t *context);
     handle_cb_t handle_cb[HY_SERVER_PROTOCOL_TYPE_MAX] = {
-        protocol_json_destroy,
+        ProtocolJsonDestroy,
     };
 
     ProtocolContext_t *context = handle;
@@ -69,12 +70,24 @@ int HyServerProtocolWrite(void *handle, void *data, size_t len)
         return -1;
     }
 
-    typedef int (*handle_cb_t)(ProtocolContext_t *context, void *data, size_t len);
+    typedef int (*handle_cb_t)
+        (ProtocolContext_t *context, void *data, size_t len);
     handle_cb_t handle_cb[HY_SERVER_PROTOCOL_TYPE_MAX] = {
-        protocol_json_write,
+        ProtocolJsonWrite,
     };
 
     ProtocolContext_t *context = handle;
     return handle_cb[context->type](context, data, len);
+}
+
+int HyServerProtocolProcess(void *handle)
+{
+    typedef int (*handle_cb_t)(ProtocolContext_t *context);
+    handle_cb_t handle_cb[HY_SERVER_PROTOCOL_TYPE_MAX] = {
+        ProtocolJsonProcess,
+    };
+
+    ProtocolContext_t *context = handle;
+    return handle_cb[context->type](context);
 }
 

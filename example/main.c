@@ -48,12 +48,10 @@ int main(int argc, char const* argv[])
         return -1;
     }
 
-    int cnt = 5;
-    while (cnt-- > 0) {
-        HyTimeDelayMs(1000);
+    while (1) {
+        // HyTimeDelayMs(1000);
 
-        #define _MESSAGE "haha"
-        HyServerProtocolWrite(handle, _MESSAGE, sizeof(_MESSAGE));
+        HyServerProtocolProcess(handle);
     }
 
     HyServerProtocolDestroy(handle);

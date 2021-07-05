@@ -32,6 +32,9 @@ typedef struct {
     HyServerProtocolType_t  type;
 
     void                    *handle;
+
+    int                     state;
+
     HyServerProtocolCb_t    cb;
     void                    *args;
 } ProtocolContext_t;

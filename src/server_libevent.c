@@ -38,7 +38,6 @@ typedef struct {
     pthread_t           id;
 
     ServerCb_t          cb;
-    void                *args;
 } server_libevent_context_t;
 
 static void _libevent_destroy(server_libevent_context_t *context);
@@ -57,8 +56,8 @@ static void _socket_read_cb(struct bufferevent *bev, void *arg)
     char buf[1024] = {0}; 
     size_t ret = bufferevent_read(bev, buf, sizeof(buf));
 
-    if (context->cb) {
-        context->cb(buf, ret, context->args);
+    if (context->cb.data_cb) {
+        context->cb.data_cb(buf, ret, context->cb.args);
     }
 }
 
@@ -68,13 +67,24 @@ static void _socket_write_cb(struct bufferevent *bev, void *arg)
 
 static void _socket_event_cb(struct bufferevent *bev, short events, void *arg)
 {
+    server_libevent_context_t *context = arg;
+
     if (events & BEV_EVENT_EOF) {
         LOGE("connection closed \n");
     } else if(events & BEV_EVENT_ERROR) {
         LOGE("some other error \n");
     } else if(events & BEV_EVENT_CONNECTED) {
-        LOGE("connect to the server \n");
+        LOGI("connect to the server \n");
+
+        if (context && context->cb.state_cb) {
+            context->cb.state_cb(SERVER_STATE_CONNECTED, context->cb.args);
+        }
+
         return;
+    }
+
+    if (context && context->cb.state_cb) {
+        context->cb.state_cb(SERVER_STATE_DISCONNECT, context->cb.args);
     }
 
     bufferevent_free(bev);
@@ -86,6 +96,10 @@ static void *_event_base_dispatch_loop(void *args)
 
     event_base_dispatch(context->base);
 
+    if (context && context->cb.state_cb) {
+        context->cb.state_cb(SERVER_STATE_DISCONNECT, context->cb.args);
+    }
+
     return NULL;
 }
 
@@ -93,10 +107,10 @@ static int _libevent_create(server_libevent_context_t *context,
         ServerConfig_t *server_config)
 {
     do {
-#if EVTHREAD_USE_WINDOWS_THREADS_IMPLEMENTED
+#ifdef _WIN32
         evthread_use_windows_threads();
 #endif
-#if EVTHREAD_USE_PTHREADS_IMPLEMENTED
+#ifdef __GNUC__
         evthread_use_pthreads();
 #endif
         context->base = event_base_new();
@@ -172,8 +186,7 @@ void *server_libevent_create(ServerConfig_t *server_config)
         }
         memset(context, '\0', sizeof(*context));
 
-        context->cb = server_config->cb;
-        context->args = server_config->args;
+        memcpy(&context->cb, &server_config->cb, sizeof(server_config->cb));
 
         if (0 != _libevent_create(context, server_config)) {
             LOGE("_libevent_create faild \n");
