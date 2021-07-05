@@ -111,6 +111,8 @@ int ProtocolJsonProcess(ProtocolContext_t *context)
     }
 
     if (context->state & SERVER_STATE_DISCONNECT) {
+        ProtocolJsonDestroy(context);
+
         return -1;
     } else {
         return 0;

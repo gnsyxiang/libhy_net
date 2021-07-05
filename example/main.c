@@ -31,10 +31,8 @@ static void _data_cb(int type, void *data, size_t len, void *args)
     LOGD("len: %d, data: %s \n", len, data);
 }
 
-int main(int argc, char const* argv[])
+static void *_connect_server(void)
 {
-    HyLogCreate(HY_LOG_LEVEL_ALL, 1024, "./res/config/log4cplus.rc");
-
     HyServerProtocolConfig_t server_protocol_config;
     server_protocol_config.ip           = "192.168.1.57";
     server_protocol_config.port         = 9999;
@@ -46,20 +44,29 @@ int main(int argc, char const* argv[])
     void *handle = HyServerProtocolCreate(&server_protocol_config);
     if (!handle) {
         LOGE("HyServerProtocolCreate faild \n");
-        return -1;
+        return NULL;
     }
+    return handle;
+}
 
-    while (1) {
-        // HyTimeDelayMs(1000);
+int main(int argc, char const* argv[])
+{
+    HyLogCreate(HY_LOG_LEVEL_ALL, 1024, "./res/config/log4cplus.rc");
 
+    void *handle = _connect_server();
+
+    int cnt = 0;
+    while (cnt < 3) {
         if (0 != HyServerProtocolProcess(handle)) {
             LOGI("disconnect server \n");
 
-            break;
+            handle = _connect_server();
+            cnt++;
         }
     }
 
     HyServerProtocolDestroy(handle);
+
     HyLogDestroy();
 
     return 0;

@@ -29,9 +29,10 @@ extern "C" {
 
 enum {
     SERVER_STATE_DISCONNECT = (uint32_t)(0x1 << 0),
-    SERVER_STATE_CONNECTED  = (uint32_t)(0x1 << 1),
+    SERVER_STATE_CONNECTING = (uint32_t)(0x1 << 1),
+    SERVER_STATE_CONNECTED  = (uint32_t)(0x1 << 2),
 
-    SERVER_STATE_REGISTER   = (uint32_t)(0x1 << 2),
+    SERVER_STATE_REGISTER   = (uint32_t)(0x1 << 3),
 };
 
 typedef struct {

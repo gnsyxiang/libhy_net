@@ -145,6 +145,10 @@ static int _libevent_create(server_libevent_context_t *context,
             break;
         }
 
+        if (context && context->cb.state_cb) {
+            context->cb.state_cb(SERVER_STATE_CONNECTING, context->cb.args);
+        }
+
         return 0;
     } while(0);
 
