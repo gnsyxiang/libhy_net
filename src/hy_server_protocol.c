@@ -42,7 +42,7 @@ void *HyServerProtocolCreate(HyServerProtocolConfig_t *server_protocol_config)
         ProtocolJsonCreate,
     };
 
-    return handle_cb[server_protocol_config->type](server_protocol_config);
+    return handle_cb[server_protocol_config->config_save.type](server_protocol_config);
 }
 
 void HyServerProtocolDestroy(void *handle)
@@ -60,7 +60,7 @@ void HyServerProtocolDestroy(void *handle)
     };
 
     ProtocolContext_t *context = handle;
-    handle_cb[context->type](context);
+    handle_cb[context->config_save.type](context);
 }
 
 int HyServerProtocolWrite(void *handle, void *data, size_t len)
@@ -77,7 +77,7 @@ int HyServerProtocolWrite(void *handle, void *data, size_t len)
     };
 
     ProtocolContext_t *context = handle;
-    return handle_cb[context->type](context, data, len);
+    return handle_cb[context->config_save.type](context, data, len);
 }
 
 int HyServerProtocolProcess(void *handle)
@@ -88,6 +88,6 @@ int HyServerProtocolProcess(void *handle)
     };
 
     ProtocolContext_t *context = handle;
-    return handle_cb[context->type](context);
+    return handle_cb[context->config_save.type](context);
 }
 

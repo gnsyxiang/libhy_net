@@ -29,14 +29,10 @@ extern "C" {
 #include "hy_server_protocol.h"
 
 typedef struct {
-    HyServerProtocolType_t  type;
-
     void                    *handle;
-
     int                     state;
 
-    HyServerProtocolCb_t    cb;
-    void                    *args;
+    HyServerProtocolConfigSave_t config_save;
 } ProtocolContext_t;
 
 #ifdef __cplusplus

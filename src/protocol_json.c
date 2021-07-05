@@ -37,8 +37,8 @@ static void _handle_data_cb(void *data, size_t len, void *args)
 {
     ProtocolContext_t *context = args;
 
-    if (context->cb) {
-        context->cb(1, data, len, context->args);
+    if (context && context->config_save.data_cb) {
+        context->config_save.data_cb(1, data, len, context->config_save.args);
     }
 }
 
@@ -67,9 +67,8 @@ void *ProtocolJsonCreate(HyServerProtocolConfig_t *server_protocol_config)
         }
         memset(context, '\0', sizeof(*context));
 
-        context->type   = server_protocol_config->type;
-        context->cb     = server_protocol_config->cb;
-        context->args   = server_protocol_config->args;
+        memcpy(&context->config_save, &server_protocol_config->config_save,
+                sizeof(context->config_save));
 
         ServerConfig_t server_config;
         server_config.ip            = server_protocol_config->ip;

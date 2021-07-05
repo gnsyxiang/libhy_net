@@ -36,11 +36,12 @@ int main(int argc, char const* argv[])
     HyLogCreate(HY_LOG_LEVEL_ALL, 1024, "./res/config/log4cplus.rc");
 
     HyServerProtocolConfig_t server_protocol_config;
-    server_protocol_config.type = HY_SERVER_PROTOCOL_TYPE_JSON;
-    server_protocol_config.ip   = "192.168.1.57";
-    server_protocol_config.port = 9999;
-    server_protocol_config.cb   = _data_cb;
-    server_protocol_config.args = NULL;
+    server_protocol_config.ip           = "192.168.1.57";
+    server_protocol_config.port         = 9999;
+
+    server_protocol_config.config_save.type     = HY_SERVER_PROTOCOL_TYPE_JSON;
+    server_protocol_config.config_save.data_cb  = _data_cb;
+    server_protocol_config.config_save.args     = NULL;
 
     void *handle = HyServerProtocolCreate(&server_protocol_config);
     if (!handle) {
