@@ -41,6 +41,15 @@ typedef struct {
     void                *args;
 } server_libevent_context_t;
 
+static void _libevent_destroy(server_libevent_context_t *context);
+
+int server_libevent_write(void *handle, void *data, size_t len)
+{
+    server_libevent_context_t *context = handle;
+
+    return bufferevent_write(context->bev, data, len);
+}
+
 static void _socket_read_cb(struct bufferevent *bev, void *arg)
 {
     server_libevent_context_t *context = arg;
@@ -60,16 +69,15 @@ static void _socket_write_cb(struct bufferevent *bev, void *arg)
 static void _socket_event_cb(struct bufferevent *bev, short events, void *arg)
 {
     if (events & BEV_EVENT_EOF) {
-        printf("connection closed\n");
+        LOGE("connection closed \n");
     } else if(events & BEV_EVENT_ERROR) {
-        printf("some other error\n");
+        LOGE("some other error \n");
     } else if(events & BEV_EVENT_CONNECTED) {
-        printf("服务器已连接\n");
+        LOGE("connect to the server \n");
         return;
     }
 
     bufferevent_free(bev);
-    printf("free bufferevent...\n");
 }
 
 static void *_event_base_dispatch_loop(void *args)
@@ -129,6 +137,8 @@ static int _libevent_create(server_libevent_context_t *context,
         return 0;
     } while(0);
 
+    _libevent_destroy(context);
+
     return -1;
 }
 
@@ -173,13 +183,7 @@ void *server_libevent_create(ServerConfig_t *server_config)
         return context;
     } while(0);
 
-    if (context) {
-        if (context->base) {
-            _libevent_destroy(context);
-        }
-
-        free(context);
-    }
+    server_libevent_destroy(context);
 
     return NULL;
 }
@@ -195,10 +199,5 @@ void server_libevent_destroy(void *handle)
     }
 
     free(context);
-}
-
-int server_libevent_write(void *handle, void *data, size_t len)
-{
-    return 0;
 }
 
