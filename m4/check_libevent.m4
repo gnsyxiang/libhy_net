@@ -35,7 +35,7 @@ AC_DEFUN([CHECK_LIBEVENT], [
             case "$PKG_CONFIG" in
                 '') ;;
                 *)
-                    EVENT_LIBS=`$PKG_CONFIG --libs event 2>/dev/null`
+                    EVENT_LIBS=`$PKG_CONFIG --libs libevent 2>/dev/null`
 
                     case "$EVENT_LIBS" in
                         '') ;;
@@ -45,7 +45,7 @@ AC_DEFUN([CHECK_LIBEVENT], [
                         ;;
                     esac
 
-                    EVENT_INCS=`$PKG_CONFIG --cflags event 2>/dev/null`
+                    EVENT_INCS=`$PKG_CONFIG --cflags libevent 2>/dev/null`
                 ;;
             esac
 
