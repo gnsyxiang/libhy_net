@@ -83,9 +83,6 @@ static void _socket_event_cb(struct bufferevent *bev, short events, void *arg)
         return;
     }
 
-    if (context && context->cb.state_cb) {
-        context->cb.state_cb(SERVER_STATE_DISCONNECT, context->cb.args);
-    }
 
     bufferevent_free(bev);
 }

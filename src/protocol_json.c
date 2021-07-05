@@ -111,6 +111,10 @@ int ProtocolJsonProcess(ProtocolContext_t *context)
         }
     }
 
-    return 0;
+    if (context->state & SERVER_STATE_DISCONNECT) {
+        return -1;
+    } else {
+        return 0;
+    }
 }
 

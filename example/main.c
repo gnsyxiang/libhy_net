@@ -51,7 +51,11 @@ int main(int argc, char const* argv[])
     while (1) {
         // HyTimeDelayMs(1000);
 
-        HyServerProtocolProcess(handle);
+        if (0 != HyServerProtocolProcess(handle)) {
+            LOGI("disconnect server \n");
+
+            break;
+        }
     }
 
     HyServerProtocolDestroy(handle);
