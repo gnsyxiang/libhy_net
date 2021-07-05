@@ -83,8 +83,8 @@ static void _socket_event_cb(struct bufferevent *bev, short events, void *arg)
         return;
     }
 
-
-    bufferevent_free(bev);
+    bufferevent_free(context->bev);
+    context->bev = NULL;
 }
 
 static void *_event_base_dispatch_loop(void *args)
