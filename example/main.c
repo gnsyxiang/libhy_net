@@ -56,7 +56,6 @@ int main(int argc, char const* argv[])
         HyServerProtocolWrite(handle, _MESSAGE, sizeof(_MESSAGE));
     }
 
-    LOGD("hahaha-----------j;wait\n");
     HyServerProtocolDestroy(handle);
     HyLogDestroy();
 

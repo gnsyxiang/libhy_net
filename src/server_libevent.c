@@ -21,7 +21,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include <semaphore.h>
 
 #include <event2/event.h>
 #include <event2/bufferevent.h>
@@ -40,8 +39,6 @@ typedef struct {
 
     ServerCb_t          cb;
     void                *args;
-
-    sem_t               exit_sem;
 } server_libevent_context_t;
 
 static void _socket_read_cb(struct bufferevent *bev, void *arg)
@@ -81,12 +78,11 @@ static void *_event_base_dispatch_loop(void *args)
 
     event_base_dispatch(context->base);
 
-    sem_post(&context->exit_sem);
-
     return NULL;
 }
 
-static int _libevent_init(server_libevent_context_t *context, ServerConfig_t *server_config)
+static int _libevent_create(server_libevent_context_t *context,
+        ServerConfig_t *server_config)
 {
     do {
 #if EVTHREAD_USE_WINDOWS_THREADS_IMPLEMENTED
@@ -136,6 +132,22 @@ static int _libevent_init(server_libevent_context_t *context, ServerConfig_t *se
     return -1;
 }
 
+static void _libevent_destroy(server_libevent_context_t *context)
+{
+    if (context->id) {
+        event_base_loopexit(context->base, NULL);
+        pthread_join(context->id, NULL);
+    }
+
+    if (context->bev) {
+        bufferevent_free(context->bev);
+    }
+
+    if (context->base) {
+        event_base_free(context->base);
+    }
+}
+
 void *server_libevent_create(ServerConfig_t *server_config)
 {
     LOGT("%s:%d \n", __func__, __LINE__);
@@ -153,13 +165,8 @@ void *server_libevent_create(ServerConfig_t *server_config)
         context->cb = server_config->cb;
         context->args = server_config->args;
 
-        if (0 != sem_init(&context->exit_sem, 0, 0)) {
-            LOGE("sem_init faild \n");
-            break;
-        }
-
-        if (0 != _libevent_init(context, server_config)) {
-            LOGE("_libevent_init faild \n");
+        if (0 != _libevent_create(context, server_config)) {
+            LOGE("_libevent_create faild \n");
             break;
         }
 
@@ -167,14 +174,8 @@ void *server_libevent_create(ServerConfig_t *server_config)
     } while(0);
 
     if (context) {
-        if (context->id == 0) {
-        }
-
-        if (context->bev) {
-        }
-
         if (context->base) {
-            event_base_free(context->base);
+            _libevent_destroy(context);
         }
 
         free(context);
@@ -190,16 +191,10 @@ void server_libevent_destroy(void *handle)
     server_libevent_context_t *context = handle;
 
     if (context->base) {
-        event_base_loopexit(context->base, NULL);
-
-        sem_wait(&context->exit_sem);
-
-        sem_destroy(&context->exit_sem);
-
-        event_base_free(context->base);
-
-        free(context);
+        _libevent_destroy(context);
     }
+
+    free(context);
 }
 
 int server_libevent_write(void *handle, void *data, size_t len)
