@@ -42,7 +42,8 @@ void *HyServerProtocolCreate(HyServerProtocolConfig_t *server_protocol_config)
         ProtocolJsonCreate,
     };
 
-    return handle_cb[server_protocol_config->config_save.type](server_protocol_config);
+    HyServerProtocolType_t type = server_protocol_config->config_save.type;
+    return handle_cb[type](server_protocol_config);
 }
 
 void HyServerProtocolDestroy(void *handle)
