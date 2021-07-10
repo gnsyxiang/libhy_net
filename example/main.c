@@ -72,8 +72,8 @@ static _main_context_t *_module_create(void)
 
     // note: 增加或删除要同步到module_destroy_t中
     module_create_t module[] = {
-        {"log",     context->log_handle,    &log_config,    (create_t)HyLogCreate,  HyLogDestroy},
-        {"net",     context->net_handle,    &net_config,    (create_t)HyNetCreate,  HyNetDestroy},
+        {"log",     &context->log_handle,   &log_config,    (create_t)HyLogCreate,  HyLogDestroy},
+        {"net",     &context->net_handle,   &net_config,    (create_t)HyNetCreate,  HyNetDestroy},
     };
 
     RUN_CREATE(module);
