@@ -46,8 +46,8 @@ AC_PROG_MKDIR_P
 AC_CHECK_HEADERS([stdint.h stdlib.h string.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
+AC_TYPE_SIZE_T
 AC_TYPE_UINT16_T
-AC_TYPE_UINT32_T
 
 # Checks for library functions.
 AC_FUNC_MALLOC
@@ -56,10 +56,17 @@ AC_CHECK_FUNCS([memset])
 AC_CONFIG_FILES([3rd_lib/Makefile
                  Makefile
                  $project_name.pc
-                 docs/Makefile
+                 doc/Makefile
                  example/Makefile
                  include/Makefile
                  res/Makefile
                  res/config/Makefile
-                 src/Makefile])
+                 src/Makefile
+                 src/net/Makefile
+                 src/net/hy_hal/Makefile
+                 src/net/libevent/Makefile
+                 src/protocol/Makefile
+                 src/protocol/json/Makefile
+                 src/protocol/protobuf/Makefile
+                 src/protocol/xml/Makefile])
 AC_OUTPUT

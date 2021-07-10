@@ -18,32 +18,30 @@
  *     last modified: 18/03 2021 20:22
  */
 #include <stdio.h>
+#include <unistd.h>
 
-#include "hy_server_protocol.h"
-
-#include "hy_hal/hy_time.h"
+#include "hy_net.h"
 
 #include "hy_utils/hy_log.h"
 #define ALONE_DEBUG 1
 
-static void _data_cb(int type, void *data, size_t len, void *args)
+static void _data_cb(void *data, size_t len, void *args)
 {
     LOGD("len: %d, data: %s \n", len, data);
 }
 
 static void *_connect_server(void)
 {
-    HyServerProtocolConfig_t server_protocol_config;
-    server_protocol_config.ip           = "192.168.1.57";
-    server_protocol_config.port         = 9999;
+    HyNetConfig_t net_config;
+    net_config.ip           = "192.168.1.57";
+    net_config.port         = 7809;
 
-    server_protocol_config.config_save.type     = HY_SERVER_PROTOCOL_TYPE_JSON;
-    server_protocol_config.config_save.data_cb  = _data_cb;
-    server_protocol_config.config_save.args     = NULL;
+    net_config.config_save.data_cb  = _data_cb;
+    net_config.config_save.args     = NULL;
 
-    void *handle = HyServerProtocolCreate(&server_protocol_config);
+    void *handle = HyNetCreate(&net_config);
     if (!handle) {
-        LOGE("HyServerProtocolCreate faild \n");
+        LOGE("HyNetCreate faild \n");
         return NULL;
     }
     return handle;
@@ -55,9 +53,13 @@ int main(int argc, char const* argv[])
 
     void *handle = _connect_server();
 
+    while (1) {
+        sleep(1);
+    }
+
     int cnt = 0;
     while (cnt < 3) {
-        if (0 != HyServerProtocolProcess(handle)) {
+        if (0 != HyNetProcess(handle)) {
             LOGI("disconnect server \n");
 
             handle = _connect_server();
@@ -65,7 +67,7 @@ int main(int argc, char const* argv[])
         }
     }
 
-    HyServerProtocolDestroy(handle);
+    HyNetDestroy(handle);
 
     HyLogDestroy();
 

@@ -17,22 +17,21 @@
  * 
  *     last modified: 02/07 2021 15:06
  */
-#ifndef __LIBHY_SERVER_INCLUDE_PROTOCOL_JSON_H_
-#define __LIBHY_SERVER_INCLUDE_PROTOCOL_JSON_H_
+#ifndef __LIBHY_NET_INCLUDE_PROTOCOL_JSON_PROTOCOL_JSON_H_
+#define __LIBHY_NET_INCLUDE_PROTOCOL_JSON_PROTOCOL_JSON_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "hy_server_protocol.h"
-#include "protocol_com.h"
+#include "hy_net.h"
 
-void *ProtocolJsonCreate(HyServerProtocolConfig_t *server_protocol_config);
-void ProtocolJsonDestroy(ProtocolContext_t *context);
+void *protocol_create(HyNetConfig_t *net_config);
+void protocol_destroy(void *handle);
 
-int ProtocolJsonWrite(ProtocolContext_t *context, void *data, size_t len);
+int protocol_process(void *handle);
 
-int ProtocolJsonProcess(ProtocolContext_t *context);
+int protocol_write(void *handle, void *data, size_t len);
 
 #ifdef __cplusplus
 }

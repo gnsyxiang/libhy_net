@@ -78,7 +78,7 @@ _build/
 install/
 doxygen/
 
-hy_server_protocol.pc
+hy_net.pc
 
 *.o
 *.lo

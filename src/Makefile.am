@@ -18,6 +18,8 @@
 #     last modified: 05/03 2021 10:35
 # ===============================================================
 
+SUBDIRS = net protocol
+
 lib_LTLIBRARIES = lib@project_name@.la
 
 # ------------------
@@ -36,10 +38,7 @@ _ldadd_com      =
 # ---------------------
 _include_com    += -I$(top_srcdir)/include
 
-_sources_com    += \
-                   server_libevent.c \
-                   protocol_json.c \
-                   hy_server_protocol.c
+_sources_com    += hy_net.c
 
 _cppflags_com   += \
                    $(CPPFLAGS_COM) \
@@ -53,6 +52,10 @@ _ldflags_com    += \
                    -export-symbols-regex 'Hy*' \
                    -version-info @current@:@revision@:@age@ \
                    $(LIB_LDFLAGS_COM)
+
+_ldadd_com      += \
+                   $(top_builddir)/src/net/libevent/libnet.la \
+                   $(top_builddir)/src/protocol/json/libprotocol.la
 
 if COMPILE_LIBHY_UTILS
 _cppflags_com   += $(HY_UTILS_INCS)

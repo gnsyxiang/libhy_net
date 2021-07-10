@@ -25,7 +25,7 @@ SUBDIRS = \
           include \
           src \
           example \
-          docs \
+          doc \
           res
 
 # ------------------
@@ -67,6 +67,11 @@ CFLAGS_COM          += $(_remove_unuse_func)
 CXXFLAGS_COM        += $(_remove_unuse_func)
 LIB_LDFLAGS_COM     += -rdynamic
 BIN_LDFLAGS_COM     += -Wl,--gc-sections
+
+if COMPILE_LIBHY_UTILS
+CPPFLAGS_COM        += $(HY_UTILS_INCS)
+BIN_LDFLAGS_COM     += $(HY_UTILS_LIBS)
+endif
 
 export CPPFLAGS_COM
 export CFLAGS_COM

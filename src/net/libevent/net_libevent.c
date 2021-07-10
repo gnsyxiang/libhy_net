@@ -2,10 +2,10 @@
  * 
  * Release under GPLv-3.0.
  * 
- * @file    server_libevent.c
+ * @file    net_libevent.c
  * @brief   
  * @author  gnsyxiang <gnsyxiang@163.com>
- * @date    02/07 2021 16:03
+ * @date    10/07 2021 08:31
  * @version v0.0.1
  * 
  * @since    note
@@ -13,9 +13,9 @@
  * 
  *     change log:
  *     NO.     Author              Date            Modified
- *     00      zhenquan.qiu        02/07 2021      create the file
+ *     00      zhenquan.qiu        10/07 2021      create the file
  * 
- *     last modified: 02/07 2021 16:03
+ *     last modified: 10/07 2021 08:31
  */
 #include <stdio.h>
 #include <string.h>
@@ -26,8 +26,7 @@
 #include <event2/bufferevent.h>
 #include <event2/thread.h>
 
-#include "server_libevent.h"
-#include "server_com.h"
+#include "net.h"
 
 #include "hy_utils/hy_log.h"
 #define ALONE_DEBUG 1
@@ -37,21 +36,24 @@ typedef struct {
     struct bufferevent  *bev;
     pthread_t           id;
 
-    ServerCb_t          cb;
-} server_libevent_context_t;
+    net_cb_t            cb;
+} _net_context_t;
 
-static void _libevent_destroy(server_libevent_context_t *context);
-
-int server_libevent_write(void *handle, void *data, size_t len)
+int net_write(void *handle, void *data, size_t len)
 {
-    server_libevent_context_t *context = handle;
+    _net_context_t *context = handle;
 
     return bufferevent_write(context->bev, data, len);
 }
 
+int net_process(void *handle)
+{
+    return 0;
+}
+
 static void _socket_read_cb(struct bufferevent *bev, void *arg)
 {
-    server_libevent_context_t *context = arg;
+    _net_context_t *context = arg;
 
     char buf[1024] = {0}; 
     size_t ret = bufferevent_read(bev, buf, sizeof(buf));
@@ -67,7 +69,7 @@ static void _socket_write_cb(struct bufferevent *bev, void *arg)
 
 static void _socket_event_cb(struct bufferevent *bev, short events, void *arg)
 {
-    server_libevent_context_t *context = arg;
+    _net_context_t *context = arg;
 
     if (events & BEV_EVENT_EOF) {
         LOGE("connection closed \n");
@@ -77,7 +79,7 @@ static void _socket_event_cb(struct bufferevent *bev, short events, void *arg)
         LOGI("connect to the server \n");
 
         if (context && context->cb.state_cb) {
-            context->cb.state_cb(SERVER_STATE_CONNECTED, context->cb.args);
+            // context->cb.state_cb(SERVER_STATE_CONNECTED, context->cb.args);
         }
 
         return;
@@ -89,19 +91,34 @@ static void _socket_event_cb(struct bufferevent *bev, short events, void *arg)
 
 static void *_event_base_dispatch_loop(void *args)
 {
-    server_libevent_context_t *context = args;
+    _net_context_t *context = args;
 
     event_base_dispatch(context->base);
 
     if (context && context->cb.state_cb) {
-        context->cb.state_cb(SERVER_STATE_DISCONNECT, context->cb.args);
+        // context->cb.state_cb(SERVER_STATE_DISCONNECT, context->cb.args);
     }
 
     return NULL;
 }
 
-static int _libevent_create(server_libevent_context_t *context,
-        ServerConfig_t *server_config)
+static void _libevent_destroy(_net_context_t *context)
+{
+    if (context->id) {
+        event_base_loopexit(context->base, NULL);
+        pthread_join(context->id, NULL);
+    }
+
+    if (context->bev) {
+        bufferevent_free(context->bev);
+    }
+
+    if (context->base) {
+        event_base_free(context->base);
+    }
+}
+
+static int _libevent_create(_net_context_t *context, net_config_t *net_config)
 {
     do {
 #ifdef _WIN32
@@ -126,8 +143,8 @@ static int _libevent_create(server_libevent_context_t *context,
         struct sockaddr_in serv;
         memset(&serv, 0, sizeof(serv));
         serv.sin_family = AF_INET;
-        serv.sin_port = htons(server_config->port);
-        evutil_inet_pton(AF_INET, server_config->ip, &serv.sin_addr.s_addr);
+        serv.sin_port = htons(net_config->port);
+        evutil_inet_pton(AF_INET, net_config->ip, &serv.sin_addr.s_addr);
 
         if (0 != bufferevent_socket_connect(context->bev,
                     (struct sockaddr*)&serv, sizeof(serv))) {
@@ -146,7 +163,7 @@ static int _libevent_create(server_libevent_context_t *context,
         }
 
         if (context && context->cb.state_cb) {
-            context->cb.state_cb(SERVER_STATE_CONNECTING, context->cb.args);
+            // context->cb.state_cb(SERVER_STATE_CONNECTING, context->cb.args);
         }
 
         return 0;
@@ -157,27 +174,24 @@ static int _libevent_create(server_libevent_context_t *context,
     return -1;
 }
 
-static void _libevent_destroy(server_libevent_context_t *context)
-{
-    if (context->id) {
-        event_base_loopexit(context->base, NULL);
-        pthread_join(context->id, NULL);
-    }
-
-    if (context->bev) {
-        bufferevent_free(context->bev);
-    }
-
-    if (context->base) {
-        event_base_free(context->base);
-    }
-}
-
-void *server_libevent_create(ServerConfig_t *server_config)
+void net_destroy(void *handle)
 {
     LOGT("%s:%d \n", __func__, __LINE__);
 
-    server_libevent_context_t *context = NULL;
+    _net_context_t *context = handle;
+
+    if (context->base) {
+        _libevent_destroy(context);
+    }
+
+    free(context);
+}
+
+void *net_create(net_config_t *net_config)
+{
+    LOGT("%s:%d \n", __func__, __LINE__);
+
+    _net_context_t *context = NULL;
 
     do {
         context = malloc(sizeof(*context));
@@ -187,9 +201,9 @@ void *server_libevent_create(ServerConfig_t *server_config)
         }
         memset(context, '\0', sizeof(*context));
 
-        memcpy(&context->cb, &server_config->cb, sizeof(server_config->cb));
+        memcpy(&context->cb, &net_config->cb, sizeof(context->cb));
 
-        if (0 != _libevent_create(context, server_config)) {
+        if (0 != _libevent_create(context, net_config)) {
             LOGE("_libevent_create faild \n");
             break;
         }
@@ -197,21 +211,8 @@ void *server_libevent_create(ServerConfig_t *server_config)
         return context;
     } while(0);
 
-    server_libevent_destroy(context);
+    net_destroy(context);
 
     return NULL;
-}
-
-void server_libevent_destroy(void *handle)
-{
-    LOGT("%s:%d \n", __func__, __LINE__);
-
-    server_libevent_context_t *context = handle;
-
-    if (context->base) {
-        _libevent_destroy(context);
-    }
-
-    free(context);
 }
 
