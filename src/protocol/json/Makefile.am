@@ -48,6 +48,8 @@ _cxxflags_com   += $(CXXFLAGS_COM)
 
 _ldflags_com    += $(LIB_LDFLAGS_COM)
 
+_ldadd_com      +=
+
 libprotocol_la_SOURCES   = $(_sources_com)
 libprotocol_la_CPPFLAGS  = $(_cppflags_com)
 libprotocol_la_CFLAGS    = $(_cflags_com)

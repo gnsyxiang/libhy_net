@@ -57,11 +57,6 @@ _ldadd_com      += \
                    $(top_builddir)/src/net/libevent/libnet.la \
                    $(top_builddir)/src/protocol/json/libprotocol.la
 
-if COMPILE_LIBHY_UTILS
-_cppflags_com   += $(HY_UTILS_INCS)
-_ldflags_com    += $(HY_UTILS_LIBS)
-endif
-
 lib@project_name@_la_SOURCES    = $(_sources_com)
 lib@project_name@_la_CPPFLAGS   = $(_cppflags_com)
 lib@project_name@_la_CFLAGS     = $(_cflags_com)

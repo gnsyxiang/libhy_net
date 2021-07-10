@@ -46,23 +46,18 @@ _cflags_com     += $(CFLAGS_COM)
 
 _cxxflags_com   += $(CXXFLAGS_COM)
 
-_ldflags_com    += \
-                   $(BIN_LDFLAGS_COM) \
-                   $(top_builddir)/src/lib@project_name@.la
+_ldflags_com    += $(BIN_LDFLAGS_COM)
+
+_ldadd_com      += $(top_builddir)/src/lib@project_name@.la
 
 if COMPILE_LIBEVENT_PTHREAD
 _cppflags_com   += $(EVENT_PTHREAD_INCS)
-_ldflags_com    += $(EVENT_PTHREAD_LIBS)
+_ldadd_com      += $(EVENT_PTHREAD_LIBS)
 endif
 
 if COMPILE_LIBEVENT
 _cppflags_com   += $(EVENT_INCS)
-_ldflags_com    += $(EVENT_LIBS)
-endif
-
-if COMPILE_LIBHY_UTILS
-_cppflags_com   += $(HY_UTILS_INCS)
-_ldflags_com    += $(HY_UTILS_LIBS)
+_ldadd_com      += $(EVENT_LIBS)
 endif
 
 bin_PROGRAMS    += hy_net

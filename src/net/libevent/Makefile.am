@@ -48,6 +48,18 @@ _cxxflags_com   += $(CXXFLAGS_COM)
 
 _ldflags_com    += $(LIB_LDFLAGS_COM)
 
+_ldadd_com      +=
+
+if COMPILE_LIBEVENT_PTHREAD
+_cppflags_com   += $(EVENT_PTHREAD_INCS)
+_ldadd_com      += $(EVENT_PTHREAD_LIBS)
+endif
+
+if COMPILE_LIBEVENT
+_cppflags_com   += $(EVENT_INCS)
+_ldadd_com      += $(EVENT_LIBS)
+endif
+
 libnet_la_SOURCES   = $(_sources_com)
 libnet_la_CPPFLAGS  = $(_cppflags_com)
 libnet_la_CFLAGS    = $(_cflags_com)
