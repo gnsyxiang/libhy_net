@@ -17,12 +17,14 @@ data_disk_path=/opt/data
 if [ x$1 = x"pc" ]; then
     vender=pc
     gcc_version=x86_64-linux-gnu
+    _param_com=""
 elif [ x$1 = x"arm" ]; then
     vender=hisi
     host=arm-himix200-linux
     gcc_version=arm-himix200-linux
     gcc_prefix=arm-himix200-linux
     cross_gcc_path=${data_disk_path}/opt/toolchains/${vender}/${gcc_version}/bin/${gcc_prefix}-
+    _param_com=""
 else
     help_info
 fi
@@ -41,20 +43,21 @@ if [ $# = 2 ]; then
     cd $2/${vender}
 fi
 
-${target_path}/configure                            \
-    CC=${cross_gcc_path}gcc                         \
-    CXX=${cross_gcc_path}g++                        \
-    CPPFLAGS=""                                     \
-    CFLAGS="-I${lib_3rd_path}/include"              \
-    CXXFLAGS="-I${lib_3rd_path}/include"            \
-    LDFLAGS="-L${lib_3rd_path}/lib"                 \
-    LIBS=""                                         \
-    PKG_CONFIG_PATH="${lib_3rd_path}/lib/pkgconfig" \
-    --prefix=${prefix_path}                         \
-    --build=                                        \
-    --host=${host}                                  \
-    --target=${host}                                \
+${target_path}/configure                                    \
+    CC=${cross_gcc_path}gcc                                 \
+    CXX=${cross_gcc_path}g++                                \
+    CPPFLAGS="-I${lib_3rd_path}/include"                    \
+    CFLAGS=""                                               \
+    CXXFLAGS=""                                             \
+    LDFLAGS="-L${lib_3rd_path}/lib ${_ldflag_com}"          \
+    LIBS=""                                                 \
+    PKG_CONFIG_PATH="${lib_3rd_path}/lib/pkgconfig"         \
+    --prefix=${prefix_path}                                 \
+    --build=                                                \
+    --host=${host}                                          \
+    --target=${host}                                        \
     \
+    ${_param_com}
 
 
 thread_jobs=`getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1`
