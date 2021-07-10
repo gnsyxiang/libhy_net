@@ -31,7 +31,18 @@ typedef struct {
     HyNetConfigSave_t   up_config;
     void                *down_handle;
 
+    net_state_t         net_state;
 } _protocol_context_t;
+
+int protocol_process(void **handle)
+{
+    return 0;
+}
+
+int protocol_write(void *handle, void *data, size_t len)
+{
+    return net_write(handle, data, len);
+}
 
 static void _handle_data_cb(void *data, size_t len, void *args)
 {
@@ -44,6 +55,9 @@ static void _handle_data_cb(void *data, size_t len, void *args)
 static void _handle_state_cb(net_state_t state, void *args)
 {
     LOGT("net state: %d \n", state);
+
+    _protocol_context_t *context = args;
+    context->net_state = state;
 }
 
 void protocol_destroy(void *handle)
@@ -94,15 +108,5 @@ void *protocol_create(HyNetConfig_t *NetConfig)
     protocol_destroy(context);
 
     return NULL;
-}
-
-int protocol_process(void *handle)
-{
-    return 0;
-}
-
-int protocol_write(void *handle, void *data, size_t len)
-{
-    return net_write(handle, data, len);
 }
 

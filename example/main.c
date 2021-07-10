@@ -42,11 +42,13 @@ static void _module_destroy(_main_context_t *context)
 {
     // note: 增加或删除要同步到module_create_t中
     module_destroy_t module[] = {
-        {"log",     context->log_handle,    HyLogDestroy},
         {"net",     context->net_handle,    HyNetDestroy},
+        {"log",     context->log_handle,    HyLogDestroy},
     };
 
     RUN_DESTROY(module);
+
+    free(context);
 }
 
 static _main_context_t *_module_create(void)
