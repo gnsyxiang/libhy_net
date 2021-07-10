@@ -41,8 +41,9 @@ static void _handle_data_cb(void *data, size_t len, void *args)
     }
 }
 
-static void _handle_state_cb(int state, void *args)
+static void _handle_state_cb(net_state_t state, void *args)
 {
+    LOGT("net state: %d \n", state);
 }
 
 void protocol_destroy(void *handle)

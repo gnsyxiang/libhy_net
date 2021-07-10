@@ -27,8 +27,16 @@ extern "C" {
 #include <stdio.h>
 #include <stdint.h>
 
+typedef enum {
+    NET_STATE_DISCONNECT,
+    NET_STATE_CONNECTING,
+    NET_STATE_CONNECTED,
+
+    NET_STATE_MAX,
+} net_state_t;
+
 typedef struct {
-    void (*state_cb)(int state, void *args);
+    void (*state_cb)(net_state_t state, void *args);
     void (*data_cb)(void *data, size_t len, void *args);
     void *args;
 } net_cb_t;

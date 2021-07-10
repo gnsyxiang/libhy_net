@@ -79,7 +79,7 @@ static void _socket_event_cb(struct bufferevent *bev, short events, void *arg)
         LOGI("connect to the server \n");
 
         if (context && context->cb.state_cb) {
-            // context->cb.state_cb(SERVER_STATE_CONNECTED, context->cb.args);
+            context->cb.state_cb(NET_STATE_CONNECTED, context->cb.args);
         }
 
         return;
@@ -96,7 +96,7 @@ static void *_event_base_dispatch_loop(void *args)
     event_base_dispatch(context->base);
 
     if (context && context->cb.state_cb) {
-        // context->cb.state_cb(SERVER_STATE_DISCONNECT, context->cb.args);
+        context->cb.state_cb(NET_STATE_DISCONNECT, context->cb.args);
     }
 
     return NULL;
@@ -163,7 +163,7 @@ static int _libevent_create(_net_context_t *context, net_config_t *net_config)
         }
 
         if (context && context->cb.state_cb) {
-            // context->cb.state_cb(SERVER_STATE_CONNECTING, context->cb.args);
+            context->cb.state_cb(NET_STATE_CONNECTING, context->cb.args);
         }
 
         return 0;
